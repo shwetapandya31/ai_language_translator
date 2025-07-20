@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Voice Translator</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      color: white;
+      background: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .glass {
+      backdrop-filter: blur(10px);
+      background-color: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .neon-text {
+      text-shadow: 0 0 5px #00f7ff, 0 0 10px #00f7ff, 0 0 20px #00f7ff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="min-h-screen flex flex-col items-center justify-center px-4 py-10">
+  <div class="w-full max-w-3xl glass rounded-2xl p-8 space-y-6 shadow-2xl">
+
+    <!-- Header -->
+    <header class="text-center">
+      <div class="flex justify-center mb-2">
+        <lottie-player src="https://assets2.lottiefiles.com/packages/lf20_p8bfn5to.json" background="transparent" speed="1" style="width: 60px; height: 60px;" loop autoplay></lottie-player>
+      </div>
+      <h1 class="text-4xl font-bold neon-text">🤖 AI Voice Translator</h1>
+      <p class="text-md text-cyan-200 mt-2">Speak, Translate & Hear AI in Action</p>
+    </header>
+
+    <!-- Translator Interface -->
+    <section class="flex flex-col items-center space-y-4">
+
+      <label class="block text-xl font-semibold w-full text-left">Speech Language:</label>
+      <select id="speechLang" class="text-black px-2 py-1 rounded w-full"></select>
+
+      <textarea id="inputText" rows="3" class="w-full p-2 rounded text-black" placeholder="Type or speak here..."></textarea>
+
+      <button onclick="startRecognition()" class="w-full md:w-1/2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl flex items-center justify-center space-x-2">
+        <lottie-player src="https://assets4.lottiefiles.com/packages/lf20_jrpzvtqz.json" background="transparent" speed="1" style="width: 30px; height: 30px;" loop autoplay></lottie-player>
+        <span class="text-xl font-semibold">Start Speaking</span>
+      </button>
+
+      <label class="flex items-center space-x-3">
+        <span class="text-2xl">🎧</span>
+        <input type="checkbox" id="playAudio" checked class="w-5 h-5" />
+        <span class="text-xl font-semibold">Play Audio</span>
+      </label>
+
+      <label class="block text-xl font-semibold w-full text-left">Translate to:</label>
+      <select id="language" class="text-black px-2 py-1 rounded w-full"></select>
+
+      <button onclick="translateText()" class="w-full md:w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-xl flex items-center justify-center space-x-2">
+        <lottie-player src="https://assets3.lottiefiles.com/packages/lf20_2LdLki.json" background="transparent" speed="1" style="width: 30px; height: 30px;" loop autoplay></lottie-player>
+        <span>Translate & Speak</span>
+      </button>
+
+      <!-- ✅ REPLACEMENT: Translate to Multiple Languages Section -->
+<div id="multiTranslateSection" class="glass p-6 rounded-xl w-full">
+  <h2 class="text-2xl font-bold text-cyan-300 mb-4">🌍 Translate to Multiple Languages</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+    <label><input type="checkbox" value="en" class="lang-check"> English</label>
+    <label><input type="checkbox" value="hi" class="lang-check"> Hindi</label>
+    <label><input type="checkbox" value="mr" class="lang-check"> Marathi</label>
+    <label><input type="checkbox" value="kn" class="lang-check"> Kannada</label>
+    <label><input type="checkbox" value="gu" class="lang-check"> Gujarati</label>
+    <label><input type="checkbox" value="ml" class="lang-check"> Malayalam</label>
+    <label><input type="checkbox" value="de" class="lang-check"> German</label>
+    <label><input type="checkbox" value="fr" class="lang-check"> French</label>
+  </div>
+
+  <button onclick="translateSelected()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl flex items-center justify-center space-x-2 w-full md:w-1/2 mx-auto">
+    <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_xldzoarx.json" background="transparent" speed="1" style="width: 30px; height: 30px;" loop autoplay></lottie-player>
+    <span>Translate Selected</span>
+  </button>
+
+  <!-- Output for translations -->
+  <div id="multi-result" class="mt-4 space-y-4 text-white"></div>
+</div>
+
+      <!-- Feedback -->
+      <div id="feedback" class="text-center text-yellow-300 text-sm"></div>
+
+      <!-- Audio and Download -->
+      <audio id="audioPlayback" controls class="w-full mt-4 hidden"></audio>
+      <a id="downloadLink" class="hidden text-blue-300 underline mt-2" download>⬇️ Download MP3</a>
+
+      <!-- View History -->
+      <a href="/history" class="w-full md:w-1/2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-xl flex items-center justify-center space-x-2">
+        <lottie-player src="https://assets1.lottiefiles.com/packages/lf20_hdy0htc3.json" background="transparent" speed="1" style="width: 30px; height: 30px;" loop autoplay></lottie-player>
+        <span>View Translation History</span>
+      </a>
+
+      <!-- Chatbot -->
+      <a href="/chatbot" class="w-full md:w-1/2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-xl flex items-center justify-center space-x-2">
+          <lottie-player src="https://lottie.host/53766186-25e2-4ee4-88d2-274404fb650f/CiFi9jh6zZ.json" background="transparent" speed="1" style="width: 30px; height: 30px;" loop autoplay></lottie-player>
+          <span>Start With Chatbot</span>
+      </a>
+
+    </section>
+</div>
+  </div>
+</div>
+
+<script>
+  const languages = {
+    'en': 'English',
+    'hi': 'Hindi',
+    'mr': 'Marathi',
+    'kn': 'Kannada',
+    'gu': 'Gujarati',
+    'ml': 'Malayalam',
+    'de': 'German',
+    'fr': 'French'
+  };
+
+  const speechLangSelect = document.getElementById("speechLang");
+  const translateLangSelect = document.getElementById("language");
+  const feedback = document.getElementById("feedback");
+  const audio = document.getElementById("audioPlayback");
+  const downloadLink = document.getElementById("downloadLink");
+
+  for (const [code, name] of Object.entries(languages)) {
+    speechLangSelect.add(new Option(`${name} [${code}]`, code));
+    translateLangSelect.add(new Option(`${name} [${code}]`, code));
+  }
+
+  new TomSelect('#speechLang', { create: false });
+  new TomSelect('#language', { create: false });
+
+  function startRecognition() {
+    if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
+      return alert("Speech recognition is not supported in this browser.");
+    }
+
+    const lang = speechLangSelect.value;
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = lang;
+
+    feedback.textContent = "🎙️ Listening...";
+    recognition.onresult = (e) => {
+      document.getElementById("inputText").value = e.results[0][0].transcript;
+      feedback.textContent = "✅ Speech recognized!";
+    };
+    recognition.onerror = () => feedback.textContent = "⚠️ Error during speech recognition.";
+    recognition.onend = () => setTimeout(() => feedback.textContent = '', 2000);
+    recognition.start();
+  }
+
+  async function translateText() {
+    const text = document.getElementById("inputText").value.trim();
+    const language = document.getElementById("language").value;
+    const playAudio = document.getElementById("playAudio").checked;
+
+    if (!text) {
+      feedback.textContent = "⚠️ Please enter or speak some text.";
+      return;
+    }
+
+    feedback.textContent = "⏳ Translating...";
+    audio.classList.add("hidden");
+    downloadLink.classList.add("hidden");
+
+    try {
+      const res = await fetch("/translate", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `text=${encodeURIComponent(text)}&language=${language}&playAudio=${playAudio}`
+      });
+
+      const data = await res.json();
+
+      if (data.translated.startsWith("Error:")) {
+        feedback.textContent = data.translated;
+      } else {
+        feedback.textContent = "✅ Translation complete!";
+        document.getElementById("inputText").placeholder = data.translated;
+
+        if (data.audio_path && playAudio) {
+          const fullPath = data.audio_path.startsWith('/') ? data.audio_path : '/' + data.audio_path;
+          audio.src = fullPath;
+          audio.classList.remove("hidden");
+          downloadLink.href = fullPath;
+          downloadLink.classList.remove("hidden");
+
+          audio.onloadeddata = () => {
+            audio.play().catch(err => {
+              console.warn("Audio playback failed:", err);
+              feedback.textContent = "⚠️ Audio could not be played automatically.";
+            });
+          };
+        }
+      }
+    } catch (err) {
+      feedback.textContent = "❌ Error connecting to server.";
+    }
+  }
+
+  // ✅ NEW FUNCTION for "Translate Selected"
+  async function translateSelected() {
+  const text = document.getElementById("inputText").value.trim();
+  const checkboxes = document.querySelectorAll(".lang-check:checked");
+  const playAudio = document.getElementById("playAudio").checked;
+  const output = document.getElementById("multi-result");
+
+  if (!text) {
+    feedback.textContent = "⚠️ Please enter some text to translate.";
+    return;
+  }
+
+  if (checkboxes.length === 0) {
+    feedback.textContent = "⚠️ Please select at least one language.";
+    return;
+  }
+
+  const selectedLangs = Array.from(checkboxes).map(cb => cb.value);
+  output.innerHTML = "";
+  feedback.textContent = "🌐 Translating selected languages...";
+
+  try {
+    const res = await fetch("/translate-multi", {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, languages: selectedLangs, playAudio })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      feedback.textContent = "❌ " + data.error;
+      return;
+    }
+
+    for (const item of data) {
+      const div = document.createElement("div");
+      div.className = "bg-white bg-opacity-10 rounded-lg p-4 border border-white border-opacity-20";
+
+      const audioSrc = item.audio_path
+        ? (item.audio_path.startsWith("/") ? item.audio_path : "/" + item.audio_path) + `?t=${Date.now()}`
+        : null;
+
+      div.innerHTML = `
+        <p class="font-semibold text-lg">➡️ ${languages[item.language] || item.language}</p>
+        <p><strong>Translated:</strong> ${item.translated_text}</p>
+        ${audioSrc ? `
+          <audio controls class="mt-2 w-full">
+            <source src="${audioSrc}" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>` : ''}
+      `;
+
+      output.appendChild(div);
+    }
+
+    feedback.textContent = "✅ Translations complete!";
+  } catch (err) {
+    console.error(err);
+    feedback.textContent = "❌ Server error during translation.";
+  }
+}
+</script>
+</body>
+</html>
